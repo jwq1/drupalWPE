@@ -1,0 +1,5 @@
+ul.nice-menu,
+  ul.nice-menu ul,
+  ul.nice-menu li {
+    border: 0;
+  }

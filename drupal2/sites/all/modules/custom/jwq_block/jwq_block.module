@@ -1,0 +1,57 @@
+<?php
+/**
+ * @file
+ * A simple module to create a Drupal Block programmatically,
+ * which then can be placed within any region using the block system.
+ * Created by:  Prof. James Barnett, Babson College 2013.
+ */
+
+function jwq_block_block_info() {
+  // This example comes from node.module.
+  $blocks['my-block-1'] = array(
+    'info' => t('Recent Files Block'), 
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  $blocks['my-block-2'] = array(
+    'info' => t('My Second Block'),
+    // DRUPAL_CACHE_PER_ROLE will be assumed.
+  );
+  return $blocks;
+}
+
+function jwq_block_block_view($delta = '') {
+  // This example is adapted from node.module.
+  $block = array();
+
+  switch ($delta) {
+    case 'my-block-1':
+      // Note wrapping your text in the t() function allows for easy
+      // translations should you ever need your site to show in
+      // other languages.
+      $result = db_query("select n.title, u.uid, n.created from node n,
+                         users u where u.uid = n.uid order by n.created desc limit 5");
+      $content = "";
+      foreach($result as $row){
+        $content .= $row->title . '</br></br>';
+      }
+      $block['subject'] = t('Recent Files Block');
+      $block['content'] = 'List of Recent Files, created programmatically.</br></br>'.$content;
+      break;
+
+    case 'my-block-2':
+      $result = db_query("SELECT f.field_first_name_value, l.field_last_name_value, f.entity_id, l.entity_id, u.uid, u.data
+                FROM  `field_revision_field_first_name` f, `field_revision_field_last_name` l, users u
+                WHERE  f.entity_id = l.entity_id
+                ORDER by f.entity_id desc
+                LIMIT  1");
+      $content = "";
+      foreach($result as $row){
+        $content .= $row->field_first_name_value.' ';
+        $content .= $row->field_last_name_value.' ';
+      }
+      $block['subject'] = t("Welcome to John's Final Project");
+      $block['content'] = 'Hi '.$content.", feel free to roam around and check things out";
+  }
+  return $block;
+}
